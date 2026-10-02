@@ -288,10 +288,10 @@ body {
 }
 .v-meta .v-dot { margin: 0 3px; opacity: 0.6; }
 
-/* MODAL */
+/* MODAL - REGULAR VIDEO (FULLSCREEN) */
 .modal-backdrop {
     position: fixed; inset: 0;
-    background: rgba(0, 0, 0, 0.85);
+    background: rgba(0, 0, 0, 0.95);
     z-index: 2000; display: none;
     justify-content: center; align-items: center;
     padding: 0; opacity: 0;
@@ -303,27 +303,36 @@ body {
 }
 @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
+/* Video عادي - ملء الشاشة */
 .modal-container {
-    width: 100%; max-width: 900px; max-height: 100vh;
-    background: var(--white);
+    width: 100vw; height: 100vh;
+    height: 100dvh;
+    max-width: 100vw; max-height: 100vh;
+    background: #000;
     overflow: hidden;
     display: flex; flex-direction: column;
-    transform: scale(0.95); opacity: 0;
-    transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.25s;
-    position: relative;
-}
-.modal-backdrop.show .modal-container {
     transform: scale(1); opacity: 1;
+    position: relative;
 }
 
 .modal-header {
     display: flex; align-items: center;
     justify-content: space-between;
     padding: 8px 12px;
-    background: var(--white);
-    border-bottom: 1px solid var(--border);
+    background: rgba(0,0,0,0.7);
+    backdrop-filter: blur(8px);
+    border-bottom: none;
     flex-shrink: 0;
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    padding-top: calc(8px + env(safe-area-inset-top));
+    opacity: 0;
+    transition: opacity 0.3s;
 }
+.modal-backdrop.show .modal-header,
+.modal-container.touched .modal-header { opacity: 1; }
+
 .modal-header-info {
     display: flex; align-items: center;
     gap: 8px; min-width: 0; flex: 1;
@@ -338,23 +347,27 @@ body {
 }
 .modal-header-title {
     font-size: 13px; font-weight: 700;
-    color: var(--text); white-space: nowrap;
+    color: #fff; white-space: nowrap;
     overflow: hidden; text-overflow: ellipsis;
 }
 .modal-close-btn {
     width: 36px; height: 36px; border-radius: 50%;
-    background: var(--bg-2); border: none;
-    color: var(--text); font-size: 15px;
+    background: rgba(255,0,0,0.95); border: none;
+    color: #fff; font-size: 15px;
     cursor: pointer; display: flex;
     align-items: center; justify-content: center;
     transition: background 0.15s; flex-shrink: 0;
+    font-weight: 900;
 }
-.modal-close-btn:active { background: var(--border); }
+.modal-close-btn:active { background: var(--red-3); }
 
 .modal-player-wrap {
     position: relative; width: 100%;
-    aspect-ratio: 16 / 9;
-    background: #000; flex-shrink: 0;
+    flex: 1;
+    background: #000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 .modal-player-wrap iframe,
 .modal-player-wrap > div {
@@ -362,104 +375,66 @@ body {
     width: 100%; height: 100%; border: none;
 }
 
-.modal-info {
-    padding: 14px 16px 20px;
-    overflow-y: auto; flex: 1; min-height: 0;
-}
-.modal-info::-webkit-scrollbar { width: 6px; }
-.modal-info::-webkit-scrollbar-thumb {
-    background: var(--border-2); border-radius: 6px;
-}
-
-.modal-title {
-    font-size: 16px; font-weight: 800;
-    color: var(--text); line-height: 1.4;
-    margin-bottom: 12px;
+/* SHORTS MODE - عرض عمودي */
+.modal-container.shorts-mode {
+    width: 100vw;
+    height: 100vh;
+    height: 100dvh;
+    background: #000;
+    max-width: 500px;
+    margin: 0 auto;
 }
 
-.modal-channel-row {
-    display: flex; align-items: center;
-    gap: 12px; padding: 10px 0 14px;
-    border-bottom: 1px solid var(--border);
-    margin-bottom: 12px;
-}
-.modal-channel-av {
-    width: 42px; height: 42px; border-radius: 50%;
-    background: linear-gradient(135deg, var(--red), var(--red-2));
-    color: #fff; display: flex;
-    align-items: center; justify-content: center;
-    font-weight: 800; font-size: 17px;
-    flex-shrink: 0;
-}
-.modal-channel-info { flex: 1; min-width: 0; }
-.modal-channel-name {
-    font-size: 14px; font-weight: 700;
-    color: var(--text); white-space: nowrap;
-    overflow: hidden; text-overflow: ellipsis;
-}
-.modal-channel-meta {
-    font-size: 11.5px; color: var(--text-dim);
-    font-weight: 500; margin-top: 1px;
+.modal-container.shorts-mode .modal-player-wrap {
+    aspect-ratio: 9 / 16;
+    flex: none;
+    height: 100%;
+    max-height: 100dvh;
 }
 
-.modal-stats {
-    display: flex; gap: 12px;
-    font-size: 12.5px; color: var(--text-dim);
-    font-weight: 600; flex-wrap: wrap;
-    padding: 8px 0;
+.modal-container.shorts-mode .modal-header {
+    opacity: 1;
 }
-.modal-stats span { display: flex; align-items: center; gap: 4px; }
 
-.fullscreen-btn {
-    display: flex; align-items: center;
-    justify-content: center; gap: 8px;
-    width: 100%; padding: 14px 18px;
-    margin-top: 12px; border: none;
+/* Shorts navigation hints */
+.shorts-nav-hint {
+    position: absolute;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    color: rgba(255,255,255,0.7);
+    font-size: 13px;
+    font-weight: 700;
+    text-align: center;
+    z-index: 50;
+    pointer-events: none;
+    animation: bounceUp 2s ease-in-out infinite;
+    display: none;
+}
+.modal-container.shorts-mode .shorts-nav-hint {
+    display: block;
+}
+@keyframes bounceUp {
+    0%, 100% { transform: translateX(-50%) translateY(0); opacity: 0.5; }
+    50% { transform: translateX(-50%) translateY(-8px); opacity: 1; }
+}
+
+.shorts-counter {
+    position: absolute;
+    top: 50%;
+    right: 12px;
+    transform: translateY(-50%);
+    color: rgba(255,255,255,0.8);
+    font-size: 12px;
+    font-weight: 800;
+    background: rgba(0,0,0,0.5);
+    padding: 6px 10px;
     border-radius: 12px;
-    background: var(--black); color: #fff;
-    font-family: inherit; font-size: 15px;
-    font-weight: 800; cursor: pointer;
-    transition: transform 0.15s, background 0.2s;
-    position: relative; overflow: hidden;
+    z-index: 50;
+    display: none;
 }
-.fullscreen-btn:active { transform: scale(0.97); background: #000; }
-.fullscreen-btn .fs-icon { font-size: 18px; }
-
-.fullscreen-active {
-    position: fixed !important;
-    inset: 0 !important; z-index: 99999 !important;
-    background: #000 !important;
-    padding: 0 !important; margin: 0 !important;
-    width: 100vw !important; height: 100vh !important;
-    height: 100dvh !important;
-    display: flex !important; flex-direction: column !important;
-    overflow: hidden !important; border-radius: 0 !important;
-    max-width: none !important; max-height: none !important;
-    box-shadow: none !important; transform: none !important;
-    opacity: 1 !important;
-}
-.fullscreen-active .modal-header {
-    background: rgba(0, 0, 0, 0.7) !important;
-    border-bottom: none !important;
-    position: absolute !important;
-    top: 0 !important; left: 0 !important; right: 0 !important;
-    z-index: 100 !important;
-    backdrop-filter: blur(8px);
-    opacity: 0; transition: opacity 0.3s;
-    padding-top: calc(8px + env(safe-area-inset-top)) !important;
-}
-.fullscreen-active:hover .modal-header,
-.fullscreen-active.touched .modal-header { opacity: 1; }
-.fullscreen-active .modal-header-info { color: #fff; }
-.fullscreen-active .modal-header-title { color: #fff !important; }
-.fullscreen-active .modal-player-wrap {
-    flex: 1 !important; width: 100% !important;
-    height: 100% !important; aspect-ratio: auto !important;
-}
-.fullscreen-active .modal-info { display: none !important; }
-.fullscreen-active .modal-close-btn {
-    background: rgba(255, 0, 0, 0.95);
-    color: #fff;
+.modal-container.shorts-mode .shorts-counter {
+    display: block;
 }
 
 .fs-exit-btn {
@@ -602,19 +577,6 @@ body {
 }
 .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 
-.fs-hint {
-    position: fixed; bottom: 20px; left: 50%;
-    transform: translateX(-50%);
-    background: rgba(0, 0, 0, 0.7);
-    backdrop-filter: blur(8px); color: #fff;
-    padding: 8px 16px; border-radius: 20px;
-    font-size: 12px; font-weight: 700;
-    z-index: 100000; opacity: 0;
-    pointer-events: none; transition: opacity 0.3s;
-}
-.fullscreen-active.touched ~ .fs-hint,
-.fullscreen-active:hover ~ .fs-hint { opacity: 1; }
-
 @media (min-width: 768px) {
     .feed {
         display: grid;
@@ -635,11 +597,6 @@ body {
     .search-section { max-width: 1200px; margin: 0 auto; }
     .chips-row { max-width: 1200px; margin: 0 auto; }
     .bottom-nav { max-width: 900px; left: 50%; transform: translateX(-50%); }
-}
-
-@media (max-width: 640px) {
-    .modal-container { max-height: 100vh; }
-    .modal-title { font-size: 15px; }
 }
 </style>
 </head>
@@ -713,30 +670,10 @@ body {
             <button class="modal-close-btn" id="modalCloseBtn">✕</button>
         </div>
 
-        <div class="modal-player-wrap">
+        <div class="modal-player-wrap" id="modalPlayerWrap">
             <div id="ytPlayer"></div>
-        </div>
-
-        <div class="modal-info">
-            <div class="modal-title" id="modalTitle">—</div>
-
-            <div class="modal-channel-row">
-                <div class="modal-channel-av" id="modalChannelAv">A</div>
-                <div class="modal-channel-info">
-                    <div class="modal-channel-name" id="modalChannelName">—</div>
-                    <div class="modal-channel-meta" id="modalChannelMeta">—</div>
-                </div>
-            </div>
-
-            <div class="modal-stats">
-                <span id="modalViews">👁️ 0</span>
-                <span id="modalTime">🕐 —</span>
-            </div>
-
-            <button class="fullscreen-btn" id="fullscreenBtn">
-                <span class="fs-icon">⛶</span>
-                <span>مشاهدة بملء الشاشة</span>
-            </button>
+            <div class="shorts-nav-hint" id="shortsNavHint">اسحب للأعلى للمتابعة ⬆</div>
+            <div class="shorts-counter" id="shortsCounter">1 / 1</div>
         </div>
     </div>
 </div>
@@ -746,13 +683,9 @@ body {
 <!-- FEED -->
 <div class="feed" id="feed"></div>
 
-<!-- HIDDEN AD CONTAINERS (بدون سكربتات مزعجة) -->
+<!-- HIDDEN AD CONTAINERS -->
 <div style="position:absolute;width:1px;height:1px;overflow:hidden;opacity:0;pointer-events:none;left:-9999px;" aria-hidden="true">
     <div id="container-272c44df2e38e34bc16b9f80978efab2"></div>
-    <div id="container-272c44df2e38e34bc16b9f80978efab2-2"></div>
-    <div id="container-272c44df2e38e34bc16b9f80978efab2-3"></div>
-    <div id="container-272c44df2e38e34bc16b9f80978efab2-4"></div>
-    <div id="container-272c44df2e38e34bc16b9f80978efab2-5"></div>
 </div>
 
 <!-- BOTTOM NAV -->
@@ -780,7 +713,6 @@ body {
 </nav>
 
 <div class="toast" id="toast"></div>
-<div class="fs-hint">اضغط ✕ للخروج من ملء الشاشة</div>
 
 <!-- YouTube IFrame API -->
 <script src="https://www.youtube.com/iframe_api" async></script>
@@ -801,7 +733,8 @@ const CATEGORY_QUERIES = {
     education: 'تعليم الرياضيات والعلوم',
     tech: 'تقنية وتكنولوجيا 2025',
     quran: 'تلاوات قرآنية خاشعة',
-    cooking: 'وصفات طبخ سريعة'
+    cooking: 'وصفات طبخ سريعة',
+    shorts: 'shorts'
 };
 
 const $ = id => document.getElementById(id);
@@ -812,7 +745,10 @@ let currentQuery = '';
 let nextPageToken = '';
 let isLoading = false;
 let currentPlayingVideo = null;
-let isFullscreenMode = false;
+let currentVideoIndex = 0;
+let loadedVideos = [];       // كل الفيديوهات المحملة
+let currentVideoList = [];    // قائمة الفيديوهات الحالية للتقليب
+let isShortMode = false;
 let suggestionTimeout = null;
 let currentSuggestions = [];
 
@@ -876,6 +812,22 @@ function timeAgo(iso) {
 }
 
 // ============================================
+// الكشف عن الـ Shorts
+// ============================================
+function isShortVideo(video) {
+    // Shorts عادة أقل من 60 ثانية وبأبعاد عمودية
+    if (video.duration && video.duration <= 60) {
+        // التحقق الإضافي: إذا كان العنوان يحتوي على #shorts أو المدة قصيرة جداً
+        if (video.title.toLowerCase().includes('#short') || 
+            video.title.toLowerCase().includes('shorts') ||
+            video.duration <= 60) {
+            return true;
+        }
+    }
+    return false;
+}
+
+// ============================================
 // YouTube Ready
 // ============================================
 window.onYouTubeIframeAPIReady = function() {
@@ -898,7 +850,7 @@ $('micBtn').addEventListener('click', () => showToast('🎤 البحث الصو�
 $('lensBtn').addEventListener('click', () => showToast('📷 البحث بالصورة قريباً'));
 
 // ============================================
-// SEARCH SUGGESTIONS (auto-complete)
+// SEARCH SUGGESTIONS
 // ============================================
 const searchInput = $('searchInput');
 const suggestionsBox = $('suggestionsBox');
@@ -906,21 +858,13 @@ const searchClearBtn = $('searchClearBtn');
 
 searchInput.addEventListener('input', function() {
     const q = this.value.trim();
-    if (q.length > 0) {
-        searchClearBtn.classList.add('show');
-    } else {
-        searchClearBtn.classList.remove('show');
-    }
+    if (q.length > 0) searchClearBtn.classList.add('show');
+    else searchClearBtn.classList.remove('show');
     
     clearTimeout(suggestionTimeout);
-    if (q.length < 1) {
-        suggestionsBox.classList.remove('show');
-        return;
-    }
+    if (q.length < 1) { suggestionsBox.classList.remove('show'); return; }
     
-    suggestionTimeout = setTimeout(() => {
-        fetchSuggestions(q);
-    }, 200);
+    suggestionTimeout = setTimeout(() => { fetchSuggestions(q); }, 200);
 });
 
 searchClearBtn.addEventListener('click', () => {
@@ -930,21 +874,16 @@ searchClearBtn.addEventListener('click', () => {
     searchInput.focus();
 });
 
-// Fetch suggestions from Google Suggest API (free, no key needed)
 async function fetchSuggestions(query) {
     try {
         const url = `https://suggestqueries.google.com/complete/search?client=firefox&ds=yt&hl=ar&q=${encodeURIComponent(query)}`;
         const res = await fetch(url);
         const data = await res.json();
-        
         if (data && data[1] && data[1].length > 0) {
             currentSuggestions = data[1].slice(0, 10);
             renderSuggestions(currentSuggestions, query);
-        } else {
-            suggestionsBox.classList.remove('show');
-        }
+        } else suggestionsBox.classList.remove('show');
     } catch (e) {
-        // Fallback: try JSONP-like approach with CORS proxy
         try {
             const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(`https://suggestqueries.google.com/complete/search?client=firefox&ds=yt&hl=ar&q=${encodeURIComponent(query)}`)}`;
             const res = await fetch(proxyUrl);
@@ -953,18 +892,12 @@ async function fetchSuggestions(query) {
                 currentSuggestions = data[1].slice(0, 10);
                 renderSuggestions(currentSuggestions, query);
             }
-        } catch (err) {
-            console.log('Suggestions unavailable');
-        }
+        } catch (err) { console.log('Suggestions unavailable'); }
     }
 }
 
 function renderSuggestions(suggestions, query) {
-    if (!suggestions.length) {
-        suggestionsBox.classList.remove('show');
-        return;
-    }
-    
+    if (!suggestions.length) { suggestionsBox.classList.remove('show'); return; }
     const q = query.toLowerCase();
     suggestionsBox.innerHTML = suggestions.map(s => {
         const lower = s.toLowerCase();
@@ -983,7 +916,6 @@ function renderSuggestions(suggestions, query) {
             </button>
         `;
     }).join('');
-    
     suggestionsBox.classList.add('show');
     
     suggestionsBox.querySelectorAll('.suggestion-item').forEach(btn => {
@@ -1000,14 +932,12 @@ function renderSuggestions(suggestions, query) {
     });
 }
 
-// Hide suggestions on outside click
 document.addEventListener('click', (e) => {
     if (!suggestionsBox.contains(e.target) && e.target !== searchInput) {
         suggestionsBox.classList.remove('show');
     }
 });
 
-// Search on Enter
 searchInput.addEventListener('keydown', e => {
     if (e.key === 'Enter') {
         const q = e.target.value.trim();
@@ -1068,15 +998,11 @@ document.querySelectorAll('.nav-item').forEach(item => {
             window.scrollTo({ top: 0, behavior: 'smooth' });
         } else if (tab === 'shorts') {
             currentCategory = 'shorts';
-            currentQuery = 'shorts';
+            currentQuery = 'shorts فيديوهات قصيرة';
             loadVideos(true);
-        } else if (tab === 'subs') {
-            showToast('📺 الاشتراكات قريباً');
-        } else if (tab === 'library') {
-            showToast('📚 المكتبة قريباً');
-        } else if (tab === 'profile') {
-            showToast('👤 حسابك');
-        }
+        } else if (tab === 'subs') showToast('📺 الاشتراكات قريباً');
+        else if (tab === 'library') showToast('📚 المكتبة قريباً');
+        else if (tab === 'profile') showToast('👤 حسابك');
     });
 });
 
@@ -1090,12 +1016,12 @@ async function loadVideos(reset = false) {
     const feed = $('feed');
     if (reset) {
         nextPageToken = '';
+        loadedVideos = [];
         renderSkeletons();
     }
 
     try {
         let query = currentQuery || CATEGORY_QUERIES[currentCategory] || 'trending';
-        
         let url = `https://www.googleapis.com/youtube/v3/search?part=snippet&type=video&maxResults=20&key=${YT_API_KEY}&q=${encodeURIComponent(query)}&order=viewCount&regionCode=SA&relevanceLanguage=ar`;
         
         if (nextPageToken && !reset) url += `&pageToken=${nextPageToken}`;
@@ -1137,36 +1063,25 @@ async function loadVideos(reset = false) {
                 thumb: `https://i.ytimg.com/vi/${vid}/mqdefault.jpg`,
                 published: item.snippet.publishedAt,
                 duration: d.duration || 0,
-                views: d.views || 0
+                views: d.views || 0,
+                isShort: isShortVideo({ duration: d.duration || 0, title: item.snippet.title })
             };
         }).filter(v => v.id);
 
-        if (reset) {
-            feed.innerHTML = '';
-        }
+        loadedVideos = reset ? videos : loadedVideos.concat(videos);
 
-        // Insert videos with ad cards
+        if (reset) feed.innerHTML = '';
+
         let counter = 0;
         videos.forEach((v) => {
             feed.appendChild(createVideoCard(v));
             counter++;
-            
-            // Every 4 videos, add an ad
-            if (counter === 4) {
-                feed.appendChild(createAdCard('wide'));
-            }
-            // Every 8 videos, another ad
-            if (counter === 8) {
-                feed.appendChild(createAdCard('regular'));
-            }
-            // Every 12 videos, another ad
-            if (counter === 12) {
-                feed.appendChild(createAdCard('tall'));
-            }
+            if (counter === 4) feed.appendChild(createAdCard('wide'));
+            if (counter === 8) feed.appendChild(createAdCard('regular'));
+            if (counter === 12) feed.appendChild(createAdCard('tall'));
         });
 
         requestAnimationFrame(lazyLoadImages);
-
     } catch (err) {
         console.error(err);
         if (reset) renderEmpty('❌ تعذر التحميل — تحقق من الاتصال');
@@ -1176,7 +1091,7 @@ async function loadVideos(reset = false) {
 }
 
 // ============================================
-// Create Ad Card (بدون أي سكربتات مزعجة)
+// Create Ad Card
 // ============================================
 function createAdCard(type = 'regular') {
     const wrap = document.createElement('div');
@@ -1184,53 +1099,37 @@ function createAdCard(type = 'regular') {
     
     const closeBtn = document.createElement('button');
     closeBtn.className = 'ad-x';
-    closeBtn.setAttribute('aria-label', 'إغلاق');
     closeBtn.textContent = '✕';
-    
     const tag = document.createElement('span');
     tag.className = 'ad-tag';
     tag.textContent = 'مُموَّل · Ad';
-    
     wrap.appendChild(tag);
     wrap.appendChild(closeBtn);
     
-    // Create iframe with ad content
     const iframe = document.createElement('iframe');
     iframe.setAttribute('scrolling', 'no');
     iframe.setAttribute('loading', 'lazy');
-    
     const height = type === 'wide' ? 250 : type === 'tall' ? 250 : 100;
     iframe.style.height = height + 'px';
     
-    // Ad variants for CPM
     const adVariants = [
         `<html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><style>
-            *{margin:0;padding:0;box-sizing:border-box}body{font-family:-apple-system,Segoe UI,Roboto,sans-serif;background:linear-gradient(135deg,#fff5f5 0%,#ffe5e5 100%);display:flex;align-items:center;justify-content:center;height:100vh;padding:12px;direction:rtl;overflow:hidden}
-            .ad-box{background:#fff;border-radius:14px;padding:14px 18px;box-shadow:0 4px 20px rgba(255,0,0,0.15);text-align:center;max-width:100%;border:1px solid #ffe5e5}
+            *{margin:0;padding:0;box-sizing:border-box}body{font-family:sans-serif;background:linear-gradient(135deg,#fff5f5,#ffe5e5);display:flex;align-items:center;justify-content:center;height:100vh;padding:12px;direction:rtl}
+            .ad-box{background:#fff;border-radius:14px;padding:14px;box-shadow:0 4px 20px rgba(255,0,0,0.15);text-align:center;border:1px solid #ffe5e5}
             .ad-logo{width:38px;height:26px;background:#ff0000;border-radius:6px;display:inline-flex;align-items:center;justify-content:center;color:#fff;font-size:13px;font-weight:900;margin-bottom:6px}
             .ad-title{font-size:13px;font-weight:800;color:#0f0f0f;margin-bottom:3px}
             .ad-desc{font-size:11px;color:#606060;line-height:1.4}
             .ad-cta{display:inline-block;margin-top:8px;background:#ff0000;color:#fff;padding:6px 16px;border-radius:20px;font-size:11px;font-weight:800;text-decoration:none}
-        </style></head><body><div class="ad-box"><div class="ad-logo">▶</div><div class="ad-title">📢 YOUTUBE Premium</div><div class="ad-desc">جرّب YouTube Premium واستمتع بمشاهدة بدون إعلانات</div><a class="ad-cta" href="#" target="_blank">اعرف المزيد</a></div></body></html>`,
-        
+        </style></head><body><div class="ad-box"><div class="ad-logo">▶</div><div class="ad-title">📢 YOUTUBE Premium</div><div class="ad-desc">جرّب YouTube Premium واستمتع بمشاهدة بدون إعلانات</div><a class="ad-cta" href="#">اعرف المزيد</a></div></body></html>`,
         `<html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><style>
-            *{margin:0;padding:0;box-sizing:border-box}body{font-family:-apple-system,Segoe UI,Roboto,sans-serif;background:linear-gradient(135deg,#1a1a1a 0%,#0f0f0f 100%);display:flex;align-items:center;justify-content:center;height:100vh;padding:12px;direction:rtl;overflow:hidden;color:#fff}
-            .ad-box{text-align:center;max-width:100%}
-            .ad-logo{width:44px;height:30px;background:#ff0000;border-radius:7px;display:inline-flex;align-items:center;justify-content:center;color:#fff;font-size:15px;font-weight:900;margin-bottom:8px;box-shadow:0 4px 14px rgba(255,0,0,0.5)}
-            .ad-title{font-size:14px;font-weight:800;margin-bottom:4px}
-            .ad-desc{font-size:11px;color:#ccc;line-height:1.5}
-            .ad-cta{display:inline-block;margin-top:10px;background:#ff0000;color:#fff;padding:7px 18px;border-radius:20px;font-size:11.5px;font-weight:800;text-decoration:none}
-        </style></head><body><div class="ad-box"><div class="ad-logo">▶</div><div class="ad-title">🎬 شاهد أحدث الأفلام</div><div class="ad-desc">آلاف الأفلام والمسلسلات بانتظارك</div><a class="ad-cta" href="#" target="_blank">ابدأ المشاهدة</a></div></body></html>`,
-        
-        `<html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><style>
-            *{margin:0;padding:0;box-sizing:border-box}body{font-family:-apple-system,Segoe UI,Roboto,sans-serif;background:#fff;display:flex;align-items:center;justify-content:center;height:100vh;padding:14px;direction:rtl;overflow:hidden}
-            .ad-box{display:flex;align-items:center;gap:14px;width:100%;max-width:340px}
-            .ad-logo{width:60px;height:60px;background:linear-gradient(135deg,#ff0000,#cc0000);border-radius:14px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:24px;font-weight:900;flex-shrink:0;box-shadow:0 4px 16px rgba(255,0,0,0.3)}
+            *{margin:0;padding:0;box-sizing:border-box}body{font-family:sans-serif;background:#fff;display:flex;align-items:center;justify-content:center;height:100vh;padding:14px;direction:rtl}
+            .ad-box{display:flex;align-items:center;gap:14px;width:100%}
+            .ad-logo{width:60px;height:60px;background:linear-gradient(135deg,#ff0000,#cc0000);border-radius:14px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:24px;font-weight:900;flex-shrink:0}
             .ad-content{flex:1;text-align:right}
             .ad-title{font-size:13px;font-weight:800;color:#0f0f0f;margin-bottom:2px}
-            .ad-desc{font-size:11px;color:#606060;line-height:1.4}
+            .ad-desc{font-size:11px;color:#606060}
             .ad-cta{display:inline-block;margin-top:6px;background:#0f0f0f;color:#fff;padding:4px 12px;border-radius:16px;font-size:10.5px;font-weight:800;text-decoration:none}
-        </style></head><body><div class="ad-box"><div class="ad-logo">▶</div><div class="ad-content"><div class="ad-title">انضم إلى YOUTUBE</div><div class="ad-desc">اشترك في القنوات المفضلة لديك</div><a class="ad-cta" href="#" target="_blank">اشترك الآن</a></div></div></body></html>`
+        </style></head><body><div class="ad-box"><div class="ad-logo">▶</div><div class="ad-content"><div class="ad-title">انضم إلى YOUTUBE</div><div class="ad-desc">اشترك في القنوات المفضلة لديك</div><a class="ad-cta" href="#">اشترك الآن</a></div></div></body></html>`
     ];
     
     iframe.srcdoc = adVariants[Math.floor(Math.random() * adVariants.length)];
@@ -1241,7 +1140,6 @@ function createAdCard(type = 'regular') {
         wrap.classList.add('hidden');
         showToast('تم إخفاء الإعلان');
     });
-    
     return wrap;
 }
 
@@ -1280,6 +1178,7 @@ function createVideoCard(v) {
         <div class="v-thumb">
             <img data-src="${v.thumb}" alt="" loading="lazy">
             ${v.duration ? `<span class="duration">${formatDuration(v.duration)}</span>` : ''}
+            ${v.isShort ? `<span style="position:absolute;bottom:8px;right:8px;background:var(--red);color:#fff;font-size:10px;font-weight:800;padding:3px 8px;border-radius:4px;">SHORTS</span>` : ''}
         </div>
         <div class="v-body">
             <div class="v-avatar">${escapeHtml(v.channel.charAt(0))}</div>
@@ -1312,9 +1211,7 @@ if ('IntersectionObserver' in window) {
                 if (src) {
                     img.src = src;
                     img.onload = () => img.classList.add('loaded');
-                    img.onerror = () => {
-                        img.src = src.replace('/mqdefault.jpg', '/hqdefault.jpg');
-                    };
+                    img.onerror = () => { img.src = src.replace('/mqdefault.jpg', '/hqdefault.jpg'); };
                     img.removeAttribute('data-src');
                 }
                 imageObserver.unobserve(img);
@@ -1331,28 +1228,49 @@ function lazyLoadImages() {
 }
 
 // ============================================
-// Play Video (يفتح مباشرة بدون إعلانات مزعجة)
+// فتح الفيديو - مع كشف Shorts
 // ============================================
-function playVideo(v) {
+function playVideo(v, index = null) {
     currentPlayingVideo = v;
+    isShortMode = v.isShort || false;
 
+    // تحديث قائمة التشغيل للتقليب
+    currentVideoList = loadedVideos.filter(vid => 
+        isShortMode ? vid.isShort : !vid.isShort
+    );
+    
+    if (index !== null) {
+        currentVideoIndex = index;
+    } else {
+        currentVideoIndex = currentVideoList.findIndex(vid => vid.id === v.id);
+        if (currentVideoIndex === -1) currentVideoIndex = 0;
+    }
+
+    // تحديث الهيدر
     $('modalHeaderTitle').textContent = v.title.length > 45 ? v.title.substring(0, 45) + '...' : v.title;
-    $('modalTitle').textContent = v.title;
-    $('modalChannelAv').textContent = v.channel.charAt(0).toUpperCase();
-    $('modalChannelName').textContent = v.channel;
-    $('modalChannelMeta').textContent = 'قناة رسمية';
-    $('modalViews').textContent = '👁️ ' + formatViews(v.views) + ' مشاهدة';
-    $('modalTime').textContent = '🕐 ' + timeAgo(v.published);
+    
+    const modalContainer = $('videoModalContainer');
+    
+    if (isShortMode) {
+        // وضع Shorts - عرض عمودي بمقاس الشاشة
+        modalContainer.classList.add('shorts-mode');
+        $('shortsCounter').textContent = (currentVideoIndex + 1) + ' / ' + currentVideoList.length;
+        $('shortsNavHint').style.display = 'block';
+        showToast('⚡ فيديو قصير - اسحب للأعلى');
+    } else {
+        // وضع عادي - ملء الشاشة كاملاً
+        modalContainer.classList.remove('shorts-mode');
+        $('shortsNavHint').style.display = 'none';
+        $('shortsCounter').style.display = 'none';
+        showToast('⛶ ملء الشاشة');
+    }
 
     $('videoModal').classList.add('show');
     document.body.style.overflow = 'hidden';
 
     if (!playerReady) {
         const check = setInterval(() => {
-            if (playerReady) {
-                clearInterval(check);
-                createPlayer(v.id);
-            }
+            if (playerReady) { clearInterval(check); createPlayer(v.id); }
         }, 100);
     } else {
         createPlayer(v.id);
@@ -1383,105 +1301,99 @@ function createPlayer(videoId) {
 }
 
 // ============================================
-// Fullscreen
+// التنقل بين الفيديوهات (سحب للأعلى/لأسفل)
 // ============================================
-function enterFullscreen() {
-    const container = $('videoModalContainer');
-    const modal = $('videoModal');
+let touchStartY = 0;
+let touchEndY = 0;
+let isDragging = false;
+
+$('videoModal').addEventListener('touchstart', (e) => {
+    if (!isShortMode) return;
+    touchStartY = e.touches[0].clientY;
+    isDragging = false;
+}, { passive: true });
+
+$('videoModal').addEventListener('touchmove', (e) => {
+    if (!isShortMode || !touchStartY) return;
+    touchEndY = e.touches[0].clientY;
+    const diff = touchStartY - touchEndY;
+    if (Math.abs(diff) > 30) isDragging = true;
+}, { passive: true });
+
+$('videoModal').addEventListener('touchend', () => {
+    if (!isShortMode || !isDragging) return;
     
-    const fsRequest = container.requestFullscreen ||
-                      container.webkitRequestFullscreen ||
-                      container.mozRequestFullScreen ||
-                      container.msRequestFullscreen;
-
-    modal.classList.add('fullscreen-active');
-    $('fsExitBtn').classList.add('show');
-    isFullscreenMode = true;
-    document.body.style.overflow = 'hidden';
-
-    if (fsRequest) {
-        try {
-            fsRequest.call(container).catch(() => {});
-        } catch(e) {}
+    const diff = touchStartY - touchEndY;
+    
+    if (diff > 80) {
+        // سحب للأعلى → الفيديو التالي
+        nextVideo();
+    } else if (diff < -80) {
+        // سحب لأسفل → الفيديو السابق
+        prevVideo();
     }
+    
+    touchStartY = 0;
+    touchEndY = 0;
+    isDragging = false;
+}, { passive: true });
 
-    showToast('⛶ ملء الشاشة');
+function nextVideo() {
+    if (currentVideoIndex < currentVideoList.length - 1) {
+        currentVideoIndex++;
+        const nextVid = currentVideoList[currentVideoIndex];
+        playVideo(nextVid, currentVideoIndex);
+    } else {
+        showToast('📭 لا توجد فيديوهات أخرى');
+    }
 }
 
-function exitFullscreen() {
-    const modal = $('videoModal');
-    
-    if (document.fullscreenElement || document.webkitFullscreenElement) {
-        const exitFs = document.exitFullscreen ||
-                       document.webkitExitFullscreen ||
-                       document.mozCancelFullScreen ||
-                       document.msExitFullscreen;
-        if (exitFs) {
-            try { exitFs.call(document).catch(e => {}); } catch(e) {}
-        }
+function prevVideo() {
+    if (currentVideoIndex > 0) {
+        currentVideoIndex--;
+        const prevVid = currentVideoList[currentVideoIndex];
+        playVideo(prevVid, currentVideoIndex);
+    } else {
+        showToast('📭 هذا أول فيديو');
     }
-
-    modal.classList.remove('fullscreen-active', 'touched');
-    $('fsExitBtn').classList.remove('show');
-    isFullscreenMode = false;
 }
 
-$('fullscreenBtn').addEventListener('click', enterFullscreen);
-$('fsExitBtn').addEventListener('click', exitFullscreen);
-
-$('modalCloseBtn').addEventListener('click', () => {
-    if (isFullscreenMode) exitFullscreen();
-    else closeModal();
-});
-
-document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') {
-        if (isFullscreenMode) exitFullscreen();
-        else if ($('videoModal').classList.contains('show')) closeModal();
-    }
-});
-
-['fullscreenchange', 'webkitfullscreenchange', 'mozfullscreenchange', 'MSFullscreenChange'].forEach(evt => {
-    document.addEventListener(evt, () => {
-        const fsEl = document.fullscreenElement || document.webkitFullscreenElement ||
-                     document.mozFullScreenElement || document.msFullscreenElement;
-        if (!fsEl && isFullscreenMode) {
-            if ($('videoModal').classList.contains('show')) {
-                $('videoModal').classList.remove('fullscreen-active', 'touched');
-                $('fsExitBtn').classList.remove('show');
-                isFullscreenMode = false;
-            }
-        }
-    });
-});
-
+// ============================================
+// إظهار/إخفاء الهيدر عند اللمس
+// ============================================
 let touchTimer;
 $('videoModal').addEventListener('touchstart', () => {
-    if (isFullscreenMode) {
-        $('videoModalContainer').classList.add('touched');
-        clearTimeout(touchTimer);
-        touchTimer = setTimeout(() => {
-            $('videoModalContainer').classList.remove('touched');
-        }, 3000);
-    }
+    $('videoModalContainer').classList.add('touched');
+    clearTimeout(touchTimer);
+    touchTimer = setTimeout(() => {
+        $('videoModalContainer').classList.remove('touched');
+    }, 3000);
 }, { passive: true });
 
 // ============================================
-// Modal Close
+// Close Modal
 // ============================================
 function closeModal() {
-    if (isFullscreenMode) exitFullscreen();
-
     if (ytPlayer && typeof ytPlayer.stopVideo === 'function') {
         try { ytPlayer.stopVideo(); } catch(e) {}
     }
     $('videoModal').classList.remove('show');
+    $('videoModalContainer').classList.remove('shorts-mode', 'touched');
     document.body.style.overflow = '';
     currentPlayingVideo = null;
+    isShortMode = false;
 }
 
+$('modalCloseBtn').addEventListener('click', closeModal);
+
 $('videoModal').addEventListener('click', (e) => {
-    if (e.target === $('videoModal') && !isFullscreenMode) closeModal();
+    if (e.target === $('videoModal')) closeModal();
+});
+
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+        if ($('videoModal').classList.contains('show')) closeModal();
+    }
 });
 
 // ============================================
@@ -1517,7 +1429,7 @@ window.addEventListener('scroll', () => {
 // ============================================
 loadVideos(true);
 
-console.log('📺 YOUTUBE Loaded - بدون إعلانات مزعجة');
+console.log('📺 YOUTUBE Loaded - مع دعم Shorts والتقليب');
 </script>
 </body>
 </html>
